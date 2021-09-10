@@ -1,0 +1,82 @@
+{
+   
+   "family" : "taskA",
+   "memory" : "1024",
+   "cpu" : "0.5 vCPU",
+   "proxyConfiguration" : {
+      "containerName" : "envoy",
+      "properties" : [
+         {
+            "name" : "ProxyIngressPort",
+            "value" : "15000"
+         },
+         {
+            "name" : "AppPorts",
+            "value" : "5000"
+         },
+         {
+            "name" : "EgressIgnoredIPs",
+            "value" : "169.254.170.2,169.254.169.254"
+         },
+         {
+            "name": "EgressIgnoredPorts",
+            "value": "22"
+         },
+         {
+            "name" : "IgnoredUID",
+            "value" : "1337"
+         },
+         {
+            "name" : "ProxyEgressPort",
+            "value" : "15001"
+         }
+      ],
+      "type" : "APPMESH"
+   },
+   "containerDefinitions" : [
+      {
+         "name" : "appName",
+         "image" : "appImage",
+         "portMappings" : [
+            {
+               "containerPort" : 5000,
+               "protocol" : "tcp"
+            }
+         ],
+         "essential" : true,
+         "dependsOn" : [
+            {
+               "containerName" : "envoy",
+               "condition" : "HEALTHY"
+            }
+         ]
+      },
+      {         
+         "name" : "envoy",
+         "image" : "840364872350.dkr.ecr.eu-west-2.amazonaws.com/aws-appmesh-envoy:v1.19.1.0-prod",
+         "essential" : true,
+         "environment" : [
+            {
+               "name" : "APPMESH_VIRTUAL_NODE_NAME",
+               "value" : "mesh/apps/virtualNode/serviceB"
+            }
+         ],
+         "healthCheck" : {
+            "command" : [
+               "CMD-SHELL",
+               "curl -s http://localhost:9901/server_info | grep state | grep -q LIVE"
+            ],
+            "interval" : 5,
+            "retries" : 3,
+            "startPeriod" : 10,
+            "timeout" : 2
+         },
+         "memory" : "500",
+         "user" : "1337"
+      }
+   ],
+   "requiresCompatibilities" : [ "FARGATE" ],
+   "taskRoleArn" : "arn:aws:iam::123456789012:role/ecsTaskRole",
+   "executionRoleArn" : "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+   "networkMode" : "awsvpc"
+}

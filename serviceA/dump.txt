@@ -1,0 +1,11 @@
+== Info:   Trying 3.8.140.155:5000...
+== Info: TCP_NODELAY set
+== Info: Connected to 3.8.140.155 (3.8.140.155) port 5000 (#0)
+=> Send header, 84 bytes (0x54)
+0000: GET /mesh HTTP/1.1
+0014: Host: 3.8.140.155:5000
+002c: User-Agent: curl/7.68.0
+0045: Accept: */*
+0052: 
+== Info: Recv failure: Connection reset by peer
+== Info: Closing connection 0
